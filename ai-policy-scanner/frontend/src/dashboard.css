@@ -773,3 +773,72 @@ body { font-size: 15px; }
   .policy-textarea { font-size: 13px; }
   .history-row { font-size: 11px; }
 }
+
+:root { --text: #17231a; --text-soft: #39483d; --muted: #4d5b51; }
+.nav-label, .workspace-meta small, .profile-copy small, .usage-card > small, .help-link,
+.breadcrumb, .eyebrow, .page-heading p, .section-title-row p, .metric-head,
+.score-context > small, .metric-foot, .panel-heading small, .document-meta,
+.document-footer, .engine-summary p, .engine-footer, .finding-heading,
+.finding-source, .finding-detail, .empty-findings, .empty-findings small,
+.framework-copy small, .activity-copy small, .input-footer > span,
+.editor-heading small, .uploaded-file small, .analytics-score p,
+.analytics-findings p, .analytics-footnote, .history-toolbar > div span,
+.history-row, .history-row small, .preference-row p, .app-footer {
+  color: #3f4d42;
+}
+.document-body p { color: #344238; }
+.search-box input::placeholder, .policy-textarea::placeholder { color: #59675d; }
+.nav-item { color: #39483e; }
+.metric-head, .section-title h2, .panel-heading strong, .finding-title-line strong,
+.framework-copy strong, .activity-copy strong { color: #26352a; }
+.page-heading h1, .dashboard-heading h1 { color: #17231a; }
+.app-footer { color: #465449; }
+
+body { font-size: 16px; }
+.nav-item span, .usage-heading, .help-link, .breadcrumb { font-size: 14px; }
+.nav-label, .eyebrow, .demo-chip { font-size: 12px; }
+.page-heading h1, .dashboard-heading h1 { font-size: 30px; }
+.page-heading p, .notice-bar p { font-size: 15px; }
+.button-primary, .button-secondary { font-size: 15px; }
+.metric-head { font-size: 15px; }
+.metric-value { font-size: 34px; }
+.metric-foot, .score-context > small { font-size: 13px; }
+.section-title h2 { font-size: 19px; }
+.panel-heading strong, .engine-summary strong { font-size: 15px; }
+.panel-heading small, .doc-status, .engine-status, .document-meta { font-size: 13px; }
+.document-body p { font-size: 15px; }
+.document-footer, .document-footer button { font-size: 13px; }
+.engine-summary p, .finding-detail { font-size: 14px; }
+.finding-title-line strong { font-size: 15px; }
+.finding-heading, .finding-source, .finding-severity, .jump-link, .quote-line { font-size: 13px; }
+.framework-copy strong, .activity-copy strong { font-size: 14px; }
+.framework-copy small, .activity-copy small, .activity-status { font-size: 12px; }
+.dropzone > span, .uploaded-file strong, .editor-heading small, .example-select { font-size: 14px; }
+.uploaded-file small, .input-footer > span { font-size: 13px; }
+.policy-textarea { font-size: 15px; }
+.analytics-score p, .analytics-findings p, .analytics-bar-row > div:first-child { font-size: 14px; }
+.analytics-footnote, .history-row, .preference-row p, .app-footer { font-size: 12px; }
+
+@media (max-width: 600px) {
+  .nav-item span { font-size: 10px; }
+  .page-heading h1, .dashboard-heading h1 { font-size: 25px; }
+  .page-heading p, .notice-bar p { font-size: 13px; }
+  .button-primary, .button-secondary { font-size: 13px; }
+  .metric-head { font-size: 12px; }
+  .metric-value { font-size: 28px; }
+  .metric-foot, .score-context > small { font-size: 11px; }
+  .panel-heading strong, .engine-summary strong { font-size: 14px; }
+  .panel-heading small, .doc-status, .engine-status, .document-meta { font-size: 11px; }
+  .document-body p { font-size: 14px; }
+  .document-footer, .document-footer button { font-size: 11px; }
+  .engine-summary p, .finding-detail { font-size: 13px; }
+  .finding-title-line strong { font-size: 13px; }
+  .finding-heading, .finding-source, .finding-severity, .jump-link, .quote-line { font-size: 11px; }
+  .framework-copy strong, .activity-copy strong { font-size: 12px; }
+  .framework-copy small, .activity-copy small, .activity-status { font-size: 10px; }
+  .dropzone > span, .uploaded-file strong, .editor-heading small, .example-select { font-size: 12px; }
+  .uploaded-file small, .input-footer > span { font-size: 11px; }
+  .policy-textarea { font-size: 14px; }
+  .analytics-score p, .analytics-findings p { font-size: 12px; }
+  .history-row, .preference-row p, .app-footer { font-size: 10px; }
+}
