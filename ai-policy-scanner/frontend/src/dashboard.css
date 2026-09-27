@@ -637,9 +637,72 @@ body { background: var(--canvas); color: var(--text); }
 .document-empty { min-height: 150px; display: grid; align-content: center; justify-items: center; gap: 8px; color: #8a978d; font-size: 10px; }
 .document-empty svg { color: #6e9d78; }
 
+.topbar-actions { gap: 12px; }
+.search-box { position: relative; width: clamp(230px, 26vw, 340px); min-width: 0; height: 36px; display: flex; align-items: center; gap: 9px; padding: 0 10px; color: #66766a; background: #fff; border: 1px solid #cfdacf; border-radius: 6px; box-shadow: 0 1px 2px rgba(35, 57, 40, .04); }
+.search-box:focus-within { border-color: #6eaa7b; box-shadow: 0 0 0 3px rgba(71, 142, 87, .12); }
+.search-box > svg { flex: 0 0 auto; color: #69816e; }
+.search-box input { width: 100%; min-width: 0; padding: 0; color: #27382b; background: transparent; border: 0; outline: 0; font-size: 13px; }
+.search-box input::placeholder { color: #7c8980; opacity: 1; }
+.search-box input::-webkit-search-cancel-button { cursor: pointer; }
+.search-box kbd { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; padding: 3px 5px; color: #67766c; background: #f1f5f1; border: 1px solid #dce5dd; border-radius: 4px; font: 10px var(--mono); }
+.search-results { position: absolute; top: calc(100% + 7px); right: 0; z-index: 20; width: min(360px, calc(100vw - 28px)); overflow: hidden; padding: 5px; background: #fff; border: 1px solid #d8e2d9; border-radius: 7px; box-shadow: 0 12px 30px rgba(31, 51, 36, .16); }
+.search-result { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px; color: #344339; background: transparent; border: 0; border-radius: 4px; text-align: left; cursor: pointer; }
+.search-result:hover, .search-result:focus-visible { background: #eff6f0; }
+.search-result-icon { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; color: #347d49; background: #eaf4ec; border-radius: 5px; }
+.search-result > span:nth-child(2) { min-width: 0; flex: 1; display: grid; gap: 3px; }
+.search-result strong { overflow: hidden; color: #344339; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.search-result small { color: #758178; font-size: 10px; }
+.search-result > svg { flex: 0 0 auto; color: #839087; }
+.search-empty { padding: 14px 10px; color: #69776d; font-size: 12px; }
+
+.workspace-meta strong, .profile-copy strong { font-size: 12px; }
+.workspace-meta small, .profile-copy small, .usage-card > small { font-size: 11px; }
+.nav-item span { font-size: 12px; }
+.usage-heading, .help-link { font-size: 11px; }
+.breadcrumb, .search-trigger { font-size: 12px; }
+.page-heading p, .notice-bar p { font-size: 12px; }
+.button-primary, .button-secondary { font-size: 12px; }
+.notice-link { font-size: 11px; }
+.metric-head { font-size: 12px; }
+.score-context > small, .metric-foot { font-size: 10px; }
+.severity { font-size: 10px; }
+.section-title h2 { font-size: 15px; }
+.section-title-row p { font-size: 12px; }
+.select-button { font-size: 11px; }
+.panel-heading strong { font-size: 12px; }
+.panel-heading small, .doc-status, .engine-status, .document-meta { font-size: 10px; }
+.document-body p { font-size: 12px; }
+.document-footer { font-size: 10px; }
+.document-footer button, .engine-summary strong { font-size: 11px; }
+.engine-summary p, .finding-title-line strong, .finding-detail { font-size: 11px; }
+.finding-heading, .finding-source, .finding-severity, .jump-link, .quote-line { font-size: 10px; }
+.framework-copy strong, .activity-copy strong { font-size: 11px; }
+.framework-copy small, .framework-score small, .activity-copy small, .activity-score small { font-size: 10px; }
+.activity-status, .text-button { font-size: 10px; }
+.dropzone > strong { font-size: 14px; }
+.dropzone > span, .uploaded-file strong, .editor-heading small, .example-select { font-size: 11px; }
+.uploaded-file small, .input-footer > span { font-size: 10px; }
+.policy-textarea { font-size: 12px; }
+.analytics-score p, .analytics-findings p, .analytics-bar-row > div:first-child { font-size: 11px; }
+.analytics-footnote, .history-toolbar > div span, .history-row, .history-row small, .preference-row p, .app-footer { font-size: 10px; }
+
 @media (max-width: 600px) {
   .editor-actions { gap: 8px; }
   .risk-visual { padding-inline: 12px; }
   .risk-legend { gap: 5px; }
   .risk-legend span { gap: 4px; font-size: 8px; }
+  .topbar-actions { flex: 1; min-width: 0; justify-content: flex-end; }
+  .search-box { width: clamp(130px, 44vw, 220px); height: 35px; gap: 6px; padding-inline: 8px; }
+  .search-box input { font-size: 12px; }
+  .search-box kbd { display: none; }
+  .search-results { right: -38px; }
+  .nav-item, .sidebar-collapsed .nav-item { width: auto; flex: 1; min-width: 0; }
+  .nav-item span { max-width: 100%; font-size: 10px; }
+  .page-heading p { font-size: 11px; }
+  .metric-head { font-size: 11px; }
+  .metric-foot { font-size: 9px; }
+  .score-context > small { font-size: 9px; }
+  .document-body p { font-size: 11px; }
+  .app-footer { font-size: 9px; }
+  .risk-legend span { font-size: 9px; }
 }

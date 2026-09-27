@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
-  Bell,
   Check,
   ChevronDown,
   ChevronRight,
@@ -96,7 +95,32 @@ function App() {
   const [isScanning, setIsScanning] = useState(false);
   const [openIssue, setOpenIssue] = useState('retention');
   const [showNotice, setShowNotice] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInput = useRef(null);
   const activeLabel = navigation.find((item) => item.id === activeView)?.label || 'Dashboard';
+  const searchItems = [
+    ...navigation.map((item) => ({ type: 'view', id: item.id, title: item.label, detail: 'Workspace section' })),
+    ...(fileName ? [{ type: 'document', id: 'document', title: fileName, detail: 'Current policy' }] : []),
+    ...analysis.issues.map((issue) => ({ type: 'finding', id: issue.id, title: issue.title, detail: issue.source, issue })),
+  ];
+  const searchResults = searchQuery.trim()
+    ? searchItems.filter((item) => `${item.title} ${item.detail}`.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : [];
+
+  useEffect(() => {
+    const focusSearch = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        searchInput.current?.focus();
+      }
+      if (event.key === 'Escape') {
+        setSearchQuery('');
+        searchInput.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', focusSearch);
+    return () => window.removeEventListener('keydown', focusSearch);
+  }, []);
 
   const runScan = (text = policyText) => {
     if (!text.trim() || isScanning) return;
@@ -116,6 +140,22 @@ function App() {
     if (view === 'upload') {
       window.setTimeout(() => document.getElementById('policy-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
     }
+  };
+
+  const selectSearchResult = (item) => {
+    setSearchQuery('');
+    searchInput.current?.blur();
+    if (item.type === 'view') {
+      selectView(item.id);
+      return;
+    }
+    setActiveView('dashboard');
+    if (item.type === 'finding') {
+      setOpenIssue(item.id);
+      window.setTimeout(() => document.getElementById(`clause-${item.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+      return;
+    }
+    window.setTimeout(() => document.getElementById('document-body')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
   };
 
   return (
@@ -154,8 +194,14 @@ function App() {
         <header className="topbar">
           <div className="breadcrumb"><span>Workspace</span><ChevronRight size={14} /><strong>{activeLabel}</strong></div>
           <div className="topbar-actions">
-            <button className="search-trigger"><Search size={15} /><span>Search anything</span><kbd><Command size={10} /> K</kbd></button>
-            <button className="icon-button notification-button" aria-label="Notifications"><Bell size={17} /><i /></button>
+            <div className="search-box">
+              <Search size={16} aria-hidden="true" />
+              <input ref={searchInput} type="search" role="combobox" aria-autocomplete="list" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search" aria-label="Search sections, files, and findings" aria-controls="global-search-results" aria-expanded={Boolean(searchQuery.trim())} />
+              <kbd><Command size={10} /> K</kbd>
+              {searchQuery.trim() && <div className="search-results" id="global-search-results" role="listbox" aria-label="Search results">
+                {searchResults.length ? searchResults.map((item) => <button className="search-result" key={`${item.type}-${item.id}`} onClick={() => selectSearchResult(item)} role="option" aria-selected="false"><span className="search-result-icon">{item.type === 'finding' ? <ShieldAlert size={15} /> : item.type === 'document' ? <FileText size={15} /> : <LayoutDashboard size={15} />}</span><span><strong>{item.title}</strong><small>{item.detail}</small></span><ArrowRight size={14} /></button>) : <div className="search-empty">No matches</div>}
+              </div>}
+            </div>
             <div className="top-avatar">YR</div>
           </div>
         </header>
