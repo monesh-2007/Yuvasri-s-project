@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useRef, useState } from 'react';
+import { FileText, FileUp, ScanLine, Sparkles, X } from 'lucide-react';
 
 const EXAMPLE_POLICIES = [
   {
@@ -16,133 +16,34 @@ const EXAMPLE_POLICIES = [
   }
 ];
 
-function PolicyInput({ setReport, setLoading }) {
-  const [text, setText] = useState('');
+function PolicyInput({ text, setText, fileName, setFileName, onScan, isScanning, compact = false }) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [fileNotice, setFileNotice] = useState('');
+  const filePicker = useRef(null);
 
-  const handleScan = async () => {
-    if (!text.trim()) return;
-    setLoading(true);
-    try {
-      const res = await axios.post('https://ai-policy-scanner-2.onrender.com/scan', {
-        policy_text: text
-      });
-      setReport(JSON.parse(res.data.result));
-    } catch (err) {
-      alert('Error scanning policy. Make sure backend is running.');
+  const loadFile = async (file) => {
+    if (!file) return;
+    setFileName(file.name);
+    if (/\.(txt|md|csv)$/i.test(file.name) || file.type.startsWith('text/')) {
+      setText(await file.text());
+      setFileNotice('Text extracted and ready to review.');
+    } else if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      setFileNotice('PDF added. Paste its policy text below to include it in this demo scan.');
+    } else {
+      setFileNotice('File added. Paste the policy text below to include it in this demo scan.');
     }
-    setLoading(false);
   };
 
   return (
-    <div>
-      {/* How it works */}
-      <div className="card">
-        <h2>⚡ How It Works</h2>
-        <div className="steps">
-          <div className="step">
-            <div className="step-number">1</div>
-            <p>Paste your AI policy text</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-number">2</div>
-            <p>AI analyzes against EU AI Act & GDPR</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-number">3</div>
-            <p>Get risk scores & compliance gaps</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-number">4</div>
-            <p>Get auto-fix suggestions</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Powered by */}
-      <div className="card">
-        <h2>🤖 Powered By</h2>
-        <div className="model-grid">
-          <div className="model-item">
-            <span className="model-icon">🧠</span>
-            <div>
-              <h4>GPT-OSS 120B via Groq</h4>
-              <p>Fast LLM for deep policy analysis</p>
-            </div>
-          </div>
-          <div className="model-item">
-            <span className="model-icon">⚖️</span>
-            <div>
-              <h4>EU AI Act Framework</h4>
-              <p>7 key compliance requirements checked</p>
-            </div>
-          </div>
-          <div className="model-item">
-            <span className="model-icon">🛡️</span>
-            <div>
-              <h4>GDPR Framework</h4>
-              <p>7 data protection requirements checked</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* What we check */}
-      <div className="card">
-        <h2>📋 What We Check</h2>
-        <div className="checks-grid">
-          <div className="check-section">
-            <h4>⚖️ EU AI Act</h4>
-            <ul>
-              <li>Risk classification system</li>
-              <li>Human oversight</li>
-              <li>Transparency obligations</li>
-              <li>Data governance</li>
-              <li>Technical documentation</li>
-              <li>Accuracy & robustness</li>
-              <li>Conformity assessment</li>
-            </ul>
-          </div>
-          <div className="check-section">
-            <h4>🛡️ GDPR</h4>
-            <ul>
-              <li>Data minimization</li>
-              <li>Purpose limitation</li>
-              <li>Data retention policy</li>
-              <li>User consent</li>
-              <li>Right to erasure</li>
-              <li>Data breach notification</li>
-              <li>Data protection officer</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Paste policy */}
-      <div className="card">
-        <h2>Paste Your AI Policy</h2>
-        <p className="subtitle">Try one of our examples or paste your own policy:</p>
-        <div className="example-buttons">
-          {EXAMPLE_POLICIES.map((ex, i) => (
-            <button
-              key={i}
-              className="example-btn"
-              onClick={() => setText(ex.text)}
-            >
-              {ex.label}
-            </button>
-          ))}
-        </div>
-        <textarea
-          rows={10}
-          placeholder="Paste your company's AI policy text here..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <button onClick={handleScan}>Scan Policy</button>
-      </div>
+    <div className={`policy-input ${compact ? 'compact-input' : ''}`} id="policy-input">
+      {!compact && <div className={`dropzone ${isDragging ? 'dragging' : ''}`} onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(event) => { event.preventDefault(); setIsDragging(false); loadFile(event.dataTransfer.files[0]); }}>
+        <input ref={filePicker} type="file" accept=".pdf,.txt,.md,.csv,.doc,.docx,text/plain,application/pdf" onChange={(event) => loadFile(event.target.files[0])} />
+        <div className="dropzone-icon"><FileUp size={20} /></div><strong>Drop your policy here</strong><span>PDF, TXT or DOCX <i /> up to 20 MB</span><button className="button-secondary" onClick={() => filePicker.current?.click()}><FileText size={14} /> Browse files</button>
+      </div>}
+      {fileName && !compact && <div className="uploaded-file"><span className="uploaded-file-icon"><FileText size={15} /></span><span><strong>{fileName}</strong><small>{fileNotice || 'Ready for analysis'}</small></span><button className="icon-button" aria-label="Remove document" onClick={() => { setFileName(''); setFileNotice(''); }}><X size={15} /></button></div>}
+      {!compact && <div className="editor-heading"><div><span className="eyebrow">POLICY TEXT</span><small>Review or edit the content before scanning</small></div><button className="example-select" onClick={() => setText(EXAMPLE_POLICIES[0].text)}><Sparkles size={13} /> Load sample policy</button></div>}
+      <textarea className="policy-textarea" rows={compact ? 6 : 9} placeholder="Paste your AI policy text here…" value={text} onChange={(event) => setText(event.target.value)} aria-label="Policy text" />
+      <div className="input-footer"><span>{text.trim() ? `${text.trim().split(/\s+/).length.toLocaleString()} words` : 'No policy text yet'} <i /> Demo mode · no data leaves this browser</span><button className="button-primary" onClick={onScan} disabled={!text.trim() || isScanning}><ScanLine size={15} /> {isScanning ? 'Scanning policy…' : 'Run compliance scan'}</button></div>
     </div>
   );
 }
