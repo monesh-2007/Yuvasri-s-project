@@ -37,7 +37,7 @@ function PolicyInput({ setReport, setLoading }) {
     <div>
       {/* How it works */}
       <div className="card">
-        <h2>How It Works</h2>
+        <h2>⚡ How It Works</h2>
         <div className="steps">
           <div className="step">
             <div className="step-number">1</div>
@@ -61,15 +61,15 @@ function PolicyInput({ setReport, setLoading }) {
         </div>
       </div>
 
-      {/* Model info */}
-      <div className="card model-info">
-        <h2>Powered By</h2>
+      {/* Powered by */}
+      <div className="card">
+        <h2>🤖 Powered By</h2>
         <div className="model-grid">
           <div className="model-item">
-            <span className="model-icon">🤖</span>
+            <span className="model-icon">🧠</span>
             <div>
               <h4>GPT-OSS 120B via Groq</h4>
-              <p>Large language model for policy analysis</p>
+              <p>Fast LLM for deep policy analysis</p>
             </div>
           </div>
           <div className="model-item">
@@ -83,16 +83,47 @@ function PolicyInput({ setReport, setLoading }) {
             <span className="model-icon">🛡️</span>
             <div>
               <h4>GDPR Framework</h4>
-              <p>7 key data protection requirements checked</p>
+              <p>7 data protection requirements checked</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Policy input */}
+      {/* What we check */}
+      <div className="card">
+        <h2>📋 What We Check</h2>
+        <div className="checks-grid">
+          <div className="check-section">
+            <h4>⚖️ EU AI Act</h4>
+            <ul>
+              <li>Risk classification system</li>
+              <li>Human oversight</li>
+              <li>Transparency obligations</li>
+              <li>Data governance</li>
+              <li>Technical documentation</li>
+              <li>Accuracy & robustness</li>
+              <li>Conformity assessment</li>
+            </ul>
+          </div>
+          <div className="check-section">
+            <h4>🛡️ GDPR</h4>
+            <ul>
+              <li>Data minimization</li>
+              <li>Purpose limitation</li>
+              <li>Data retention policy</li>
+              <li>User consent</li>
+              <li>Right to erasure</li>
+              <li>Data breach notification</li>
+              <li>Data protection officer</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Paste policy */}
       <div className="card">
         <h2>Paste Your AI Policy</h2>
-        <p className="subtitle">Try one of our examples or paste your own:</p>
+        <p className="subtitle">Try one of our examples or paste your own policy:</p>
         <div className="example-buttons">
           {EXAMPLE_POLICIES.map((ex, i) => (
             <button
