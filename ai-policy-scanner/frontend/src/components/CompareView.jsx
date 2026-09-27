@@ -13,7 +13,7 @@ function CompareView() {
     if (!policyA.trim() || !policyB.trim()) return;
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8000/compare', {
+      const res = await axios.post('https://ai-policy-scanner-2.onrender.com/compare', {
         policy_a: policyA,
         policy_b: policyB,
         name_a: nameA,

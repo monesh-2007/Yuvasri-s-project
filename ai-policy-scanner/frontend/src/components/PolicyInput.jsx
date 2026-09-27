@@ -8,7 +8,7 @@ function PolicyInput({ setReport, setLoading }) {
     if (!text.trim()) return;
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8000/scan', {
+      const res = await axios.post('https://ai-policy-scanner-2.onrender.com/scan', {
         policy_text: text
       });
       setReport(JSON.parse(res.data.result));
