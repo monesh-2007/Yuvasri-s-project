@@ -35,8 +35,6 @@ import PolicyInput from './components/PolicyInput';
 import './index.css';
 import './dashboard.css';
 
-const DEFAULT_POLICY = `At Northstar, we use automated systems to support decisions across our platform. We collect personal information, browsing history, and behavioral data to improve our services.\n\nData is stored on our servers indefinitely. We may share information with trusted partners for advertising purposes without explicit user consent.\n\nAutomated decisions are made using third-party AI models. Users have no way to appeal an automated decision.\n\nWe use encryption to protect stored data. Users may contact privacy@northstar.example with questions about this policy.`;
-
 const navigation = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'upload', label: 'Document upload', icon: Upload },
@@ -92,21 +90,23 @@ function getAnalysis(text) {
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
-  const [policyText, setPolicyText] = useState(DEFAULT_POLICY);
-  const [fileName, setFileName] = useState('northstar-privacy-policy.txt');
-  const [analysis, setAnalysis] = useState(() => getAnalysis(DEFAULT_POLICY));
+  const [policyText, setPolicyText] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [analysis, setAnalysis] = useState(() => getAnalysis(''));
   const [isScanning, setIsScanning] = useState(false);
   const [openIssue, setOpenIssue] = useState('retention');
-  const [showNotice, setShowNotice] = useState(true);
+  const [showNotice, setShowNotice] = useState(false);
   const activeLabel = navigation.find((item) => item.id === activeView)?.label || 'Dashboard';
 
-  const runScan = () => {
-    if (!policyText.trim() || isScanning) return;
+  const runScan = (text = policyText) => {
+    if (!text.trim() || isScanning) return;
     setIsScanning(true);
     window.setTimeout(() => {
-      setAnalysis(getAnalysis(policyText));
+      setPolicyText(text);
+      setAnalysis(getAnalysis(text));
       setOpenIssue('');
       setIsScanning(false);
+      setShowNotice(true);
       setActiveView('dashboard');
     }, 1250);
   };
@@ -213,11 +213,11 @@ function DashboardView({ analysis, isScanning, policyText, setPolicyText, fileNa
   return (
     <>
       <div className="page-heading dashboard-heading">
-        <div><div className="eyebrow-row"><span className="eyebrow">POLICY INTELLIGENCE</span><span className="demo-chip"><span /> DEMO DATA</span></div><h1>Compliance overview</h1><p>Monitor policy health and surface the clauses that need attention.</p></div>
-        <div className="heading-actions"><button className="button-secondary" onClick={onUploadClick}><Upload size={15} /> Add document</button><button className="button-primary" onClick={runScan} disabled={isScanning}><ScanLine size={15} /> {isScanning ? 'Scanning…' : 'Run scan'}</button></div>
+        <div><div className="eyebrow-row"><span className="eyebrow">POLICY SIGNAL</span></div><h1>Policy dashboard</h1></div>
+        <div className="heading-actions"><button className="button-secondary" onClick={onUploadClick}><Upload size={15} /> Add policy</button><button className="button-primary" onClick={runScan} disabled={!policyText.trim() || isScanning}><ScanLine size={15} /> {isScanning ? 'Scanning…' : 'Scan'}</button></div>
       </div>
 
-      {showNotice && <div className="notice-bar"><div className="notice-icon"><Sparkles size={15} /></div><p><strong>Policy scan complete.</strong> We found {analysis.issues.length} items that could use a closer look.</p><button className="notice-link" onClick={() => document.getElementById('risk-breakdown')?.scrollIntoView({ behavior: 'smooth' })}>Review findings <ArrowRight size={13} /></button><button className="notice-close" aria-label="Dismiss notice" onClick={() => setShowNotice(false)}><X size={15} /></button></div>}
+      {showNotice && <div className="notice-bar"><div className="notice-icon"><Sparkles size={15} /></div><p><strong>Scan complete.</strong> {analysis.issues.length} findings</p><button className="notice-link" onClick={() => document.getElementById('risk-breakdown')?.scrollIntoView({ behavior: 'smooth' })}>View <ArrowRight size={13} /></button><button className="notice-close" aria-label="Dismiss notice" onClick={() => setShowNotice(false)}><X size={15} /></button></div>}
 
       <section className="metrics-grid" aria-label="Policy metrics">
         {isScanning ? <MetricSkeletons /> : <>
@@ -228,10 +228,10 @@ function DashboardView({ analysis, isScanning, policyText, setPolicyText, fileNa
       </section>
 
       <section className="analysis-section" aria-label="Policy analysis">
-        <div className="section-title-row"><div><div className="section-title"><h2>Live analysis</h2><span className="live-indicator"><i /> ENGINE READY</span></div><p>Document review and AI findings in one view.</p></div><button className="select-button"><span className="file-mini"><FileText size={14} /></span>{fileName}<ChevronDown size={14} /></button></div>
+        <div className="section-title-row"><div><div className="section-title"><h2>Results</h2><span className="live-indicator"><i /> {policyText.trim() ? 'READY' : 'ADD POLICY'}</span></div></div><button className="select-button"><span className="file-mini"><FileText size={14} /></span>{fileName || 'No document'}<ChevronDown size={14} /></button></div>
         <div className="analysis-grid">
           <DocumentPanel text={policyText} issues={analysis.issues} isScanning={isScanning} fileName={fileName} onEdit={onUploadClick} />
-          <AnalysisPanel issues={analysis.issues} isScanning={isScanning} openIssue={openIssue} onSelectIssue={jumpToClause} />
+          <AnalysisPanel issues={analysis.issues} isScanning={isScanning} openIssue={openIssue} onSelectIssue={jumpToClause} policyText={policyText} />
         </div>
       </section>
 
@@ -245,7 +245,7 @@ function DashboardView({ analysis, isScanning, policyText, setPolicyText, fileNa
 
 function ScoreCard({ score }) {
   const circumference = 2 * Math.PI * 31;
-  return <div className="metric-card score-card"><div className="metric-head"><span>Risk compliance score</span><span className="metric-icon green"><Gauge size={16} /></span></div><div className="score-content"><div className="score-ring" style={{ '--score-offset': circumference * (1 - score / 100) }}><svg viewBox="0 0 76 76" aria-hidden="true"><circle className="ring-track" cx="38" cy="38" r="31" /><circle className="ring-value" cx="38" cy="38" r="31" /></svg><div className="ring-label"><strong>{score}</strong><small>/100</small></div></div><div className="score-context"><span className="score-status"><i /> Needs review</span><small>+4.2 points this month</small><span className="score-trend"><ArrowUpRight size={13} /> 6.8%</span></div></div><div className="metric-foot"><span>Overall policy alignment</span><span>↗</span></div></div>;
+  return <div className="metric-card score-card"><div className="metric-head"><span>Risk score</span><span className="metric-icon green"><Gauge size={16} /></span></div><div className="score-content"><div className="score-ring" style={{ '--score-offset': circumference * (1 - score / 100) }}><svg viewBox="0 0 76 76" aria-hidden="true"><circle className="ring-track" cx="38" cy="38" r="31" /><circle className="ring-value" cx="38" cy="38" r="31" /></svg><div className="ring-label"><strong>{score}</strong><small>/100</small></div></div><div className="score-context"><span className="score-status"><i /> {score >= 80 ? 'Good' : 'Review'}</span><small>Policy alignment</small></div></div><div className="metric-foot"><span>Overall</span><span>↗</span></div></div>;
 }
 
 function MetricSkeletons() {
@@ -260,15 +260,17 @@ function DocumentPanel({ text, issues, isScanning, fileName, onEdit }) {
     if (matchIndex >= 0) highlightedIds.set(matchIndex, issue.id);
   });
 
-  return <div className="document-panel panel-surface"><div className="panel-header"><div className="panel-heading"><span className="panel-icon document-icon"><FileText size={15} /></span><div><strong>Policy document</strong><small>{fileName}</small></div></div><div className="panel-tools"><span className="doc-status"><i /> Synced</span><button className="icon-button" aria-label="Document options"><MoreHorizontal size={17} /></button></div></div><div className="document-meta"><span><FileText size={12} /> PRIVACY POLICY</span><span>EN <ChevronDown size={11} /></span></div><div className={`document-body ${isScanning ? 'document-busy' : ''}`} id="document-body" tabIndex="-1">
-    {isScanning ? <div className="document-loading"><span className="scan-beam" /><span>Reading policy clauses…</span></div> : parts.map((part, index) => <p id={highlightedIds.has(index) ? `clause-${highlightedIds.get(index)}` : undefined} className={highlightedIds.has(index) ? 'document-clause' : ''} key={`${index}-${part.slice(0, 12)}`}><span className="line-number">{String(index + 1).padStart(2, '0')}</span><span>{part.trim()}</span>{highlightedIds.has(index) && <span className="clause-marker" />}</p>)}
+  return <div className="document-panel panel-surface"><div className="panel-header"><div className="panel-heading"><span className="panel-icon document-icon"><FileText size={15} /></span><div><strong>Policy text</strong><small>{fileName || 'No document loaded'}</small></div></div><div className="panel-tools"><span className="doc-status"><i /> {text.trim() ? 'Ready' : 'Empty'}</span><button className="icon-button" aria-label="Document options"><MoreHorizontal size={17} /></button></div></div><div className="document-meta"><span><FileText size={12} /> POLICY</span><span>EN <ChevronDown size={11} /></span></div><div className={`document-body ${isScanning ? 'document-busy' : ''}`} id="document-body" tabIndex="-1">
+    {isScanning ? <div className="document-loading"><span className="scan-beam" /><span>Scanning…</span></div> : text.trim() ? parts.map((part, index) => <p id={highlightedIds.has(index) ? `clause-${highlightedIds.get(index)}` : undefined} className={highlightedIds.has(index) ? 'document-clause' : ''} key={`${index}-${part.slice(0, 12)}`}><span className="line-number">{String(index + 1).padStart(2, '0')}</span><span>{part.trim()}</span>{highlightedIds.has(index) && <span className="clause-marker" />}</p>) : <div className="document-empty"><FileText size={19} /><span>Add a policy to see it here.</span></div>}
     </div><div className="document-footer"><span><span className="footer-lock"><LockKeyhole size={11} /></span> End-to-end encrypted</span><button onClick={onEdit}>Edit text <ArrowUpRight size={12} /></button></div></div>;
 }
 
-function AnalysisPanel({ issues, isScanning, openIssue, onSelectIssue }) {
+function AnalysisPanel({ issues, isScanning, openIssue, onSelectIssue, policyText }) {
+  const severityCounts = ['high', 'medium', 'low'].map((severity) => issues.filter((issue) => issue.severity === severity).length);
+  const totalIssues = Math.max(issues.length, 1);
   return (
-    <div className="engine-panel panel-surface"><div className="panel-header"><div className="panel-heading"><span className="engine-mark"><Sparkles size={15} /></span><div><strong>Analysis engine</strong><small>Policy intelligence · v2.8</small></div></div><span className="engine-status"><i /> LIVE</span></div><div className="engine-summary"><div className="engine-orb"><span><Fingerprint size={21} /></span><i /><i /><i /></div><div><strong>{isScanning ? 'Review in progress' : 'Analysis complete'}</strong><p>{isScanning ? 'Cross-referencing policy clauses…' : `${issues.length} findings mapped to regulatory controls.`}</p></div></div><div className="finding-heading"><span>KEY FINDINGS</span><span>{String(issues.length).padStart(2, '0')} ITEMS</span></div><div className="finding-list">
-      {isScanning ? [0, 1, 2].map((item) => <div className="finding-skeleton" key={item}><span /><div><i /><i /></div></div>) : issues.length === 0 ? <div className="empty-findings"><span><ShieldCheck size={17} /></span><strong>No critical gaps found</strong><small>Keep your policy current as regulations evolve.</small></div> : issues.map((issue, index) => <button className={`finding-item ${openIssue === issue.id ? 'expanded' : ''}`} key={issue.id} onClick={() => onSelectIssue(issue)}><span className={`finding-index ${issue.severity}`}>{String(index + 1).padStart(2, '0')}</span><span className="finding-main"><span className="finding-title-line"><strong>{issue.title}</strong><ChevronDown size={14} /></span><span className="finding-source">{issue.source}</span>{openIssue === issue.id && <span className="finding-detail"><span>{issue.detail}</span><span className="quote-line">“{issue.quote}”</span><span className="jump-link">Locate in document <ArrowRight size={12} /></span></span>}</span><span className={`finding-severity ${issue.severity}`}>{issue.severity}</span></button>)}
+    <div className="engine-panel panel-surface"><div className="panel-header"><div className="panel-heading"><span className="engine-mark"><Sparkles size={15} /></span><div><strong>Risk summary</strong><small>EU AI Act · GDPR</small></div></div><span className="engine-status"><i /> READY</span></div><div className="engine-summary"><div className="engine-orb"><span><Fingerprint size={21} /></span><i /><i /><i /></div><div><strong>{isScanning ? 'Scanning' : `${issues.length} findings`}</strong><p>{isScanning ? 'Checking clauses…' : issues.length ? 'Select to locate.' : 'No findings yet.'}</p></div></div><div className="risk-visual" role="img" aria-label={`${severityCounts[0]} high, ${severityCounts[1]} medium, and ${severityCounts[2]} low severity findings`}><div className="risk-bar">{['high', 'medium', 'low'].map((severity, index) => <span key={severity} className={severity} style={{ width: `${issues.length ? (severityCounts[index] / totalIssues) * 100 : 0}%` }} />)}</div><div className="risk-legend">{['High', 'Medium', 'Low'].map((severity, index) => <span key={severity}><i className={severity.toLowerCase()} />{severity}<strong>{severityCounts[index]}</strong></span>)}</div></div><div className="finding-heading"><span>FINDINGS</span><span>{String(issues.length).padStart(2, '0')}</span></div><div className="finding-list">
+      {isScanning ? [0, 1, 2].map((item) => <div className="finding-skeleton" key={item}><span /><div><i /><i /></div></div>) : issues.length === 0 ? <div className="empty-findings"><span><ShieldCheck size={17} /></span><strong>{policyText.trim() ? 'No gaps found' : 'Ready to scan'}</strong><small>{policyText.trim() ? 'Policy looks clear.' : 'Add a policy to begin.'}</small></div> : issues.map((issue, index) => <button className={`finding-item ${openIssue === issue.id ? 'expanded' : ''}`} key={issue.id} onClick={() => onSelectIssue(issue)}><span className={`finding-index ${issue.severity}`}>{String(index + 1).padStart(2, '0')}</span><span className="finding-main"><span className="finding-title-line"><strong>{issue.title}</strong><ChevronDown size={14} /></span><span className="finding-source">{issue.source}</span>{openIssue === issue.id && <span className="finding-detail"><span>{issue.detail}</span><span className="quote-line">“{issue.quote}”</span><span className="jump-link">Locate <ArrowRight size={12} /></span></span>}</span><span className={`finding-severity ${issue.severity}`}>{issue.severity}</span></button>)}
       </div><div className="engine-footer"><span><Sparkles size={12} /> Powered by policy intelligence</span><span>~1.2s</span></div></div>
   );
 }

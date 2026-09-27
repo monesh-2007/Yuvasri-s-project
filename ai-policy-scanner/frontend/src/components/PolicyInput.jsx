@@ -1,5 +1,10 @@
-import React, { useRef, useState } from 'react';
-import { FileText, FileUp, ScanLine, Sparkles, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { FileText, FileUp, ScanLine, Sparkles, X, RotateCcw } from 'lucide-react';
+import mammoth from 'mammoth/mammoth.browser';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+import pdfjsWorker from 'pdfjs-dist/legacy/build/pdf.worker.entry';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const EXAMPLE_POLICIES = [
   {
@@ -19,31 +24,75 @@ const EXAMPLE_POLICIES = [
 function PolicyInput({ text, setText, fileName, setFileName, onScan, isScanning, compact = false }) {
   const [isDragging, setIsDragging] = useState(false);
   const [fileNotice, setFileNotice] = useState('');
+  const [draftText, setDraftText] = useState(text);
   const filePicker = useRef(null);
+  const syncTimer = useRef(null);
+
+  useEffect(() => {
+    setDraftText(text);
+  }, [text]);
+
+  useEffect(() => () => window.clearTimeout(syncTimer.current), []);
+
+  const updateText = (value) => {
+    setDraftText(value);
+    window.clearTimeout(syncTimer.current);
+    syncTimer.current = window.setTimeout(() => setText(value), 180);
+  };
+
+  const extractText = async (file) => {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (['txt', 'md', 'csv'].includes(extension) || file.type.startsWith('text/')) {
+      return file.text();
+    }
+    if (extension === 'docx') {
+      const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      return result.value;
+    }
+    if (extension === 'pdf' || file.type === 'application/pdf') {
+      const document = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      const pages = await Promise.all(Array.from({ length: document.numPages }, async (_, index) => {
+        const page = await document.getPage(index + 1);
+        const content = await page.getTextContent();
+        return content.items.map((item) => item.str).join(' ');
+      }));
+      return pages.join('\n\n');
+    }
+    throw new Error('Choose a PDF, DOCX, TXT, MD, or CSV document.');
+  };
 
   const loadFile = async (file) => {
     if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      setFileNotice('File exceeds the 20 MB limit.');
+      return;
+    }
     setFileName(file.name);
-    if (/\.(txt|md|csv)$/i.test(file.name) || file.type.startsWith('text/')) {
-      setText(await file.text());
-      setFileNotice('Text extracted and ready to review.');
-    } else if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
-      setFileNotice('PDF added. Paste its policy text below to include it in this demo scan.');
-    } else {
-      setFileNotice('File added. Paste the policy text below to include it in this demo scan.');
+    setFileNotice('Extracting document text…');
+    try {
+      const extracted = await extractText(file);
+      if (!extracted.trim()) throw new Error('No selectable text found in this document.');
+      window.clearTimeout(syncTimer.current);
+      setDraftText(extracted);
+      setText(extracted);
+      setFileNotice('Text extracted and ready to scan.');
+    } catch (error) {
+      setFileNotice(error.message || 'Could not read this document. Try another file.');
+    } finally {
+      if (filePicker.current) filePicker.current.value = '';
     }
   };
 
   return (
     <div className={`policy-input ${compact ? 'compact-input' : ''}`} id="policy-input">
       {!compact && <div className={`dropzone ${isDragging ? 'dragging' : ''}`} onDragOver={(event) => { event.preventDefault(); setIsDragging(true); }} onDragLeave={() => setIsDragging(false)} onDrop={(event) => { event.preventDefault(); setIsDragging(false); loadFile(event.dataTransfer.files[0]); }}>
-        <input ref={filePicker} type="file" accept=".pdf,.txt,.md,.csv,.doc,.docx,text/plain,application/pdf" onChange={(event) => loadFile(event.target.files[0])} />
+        <input ref={filePicker} type="file" accept=".pdf,.txt,.md,.csv,.docx,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => loadFile(event.target.files[0])} />
         <div className="dropzone-icon"><FileUp size={20} /></div><strong>Drop your policy here</strong><span>PDF, TXT or DOCX <i /> up to 20 MB</span><button className="button-secondary" onClick={() => filePicker.current?.click()}><FileText size={14} /> Browse files</button>
       </div>}
       {fileName && !compact && <div className="uploaded-file"><span className="uploaded-file-icon"><FileText size={15} /></span><span><strong>{fileName}</strong><small>{fileNotice || 'Ready for analysis'}</small></span><button className="icon-button" aria-label="Remove document" onClick={() => { setFileName(''); setFileNotice(''); }}><X size={15} /></button></div>}
-      {!compact && <div className="editor-heading"><div><span className="eyebrow">POLICY TEXT</span><small>Review or edit the content before scanning</small></div><button className="example-select" onClick={() => setText(EXAMPLE_POLICIES[0].text)}><Sparkles size={13} /> Load sample policy</button></div>}
-      <textarea className="policy-textarea" rows={compact ? 6 : 9} placeholder="Paste your AI policy text here…" value={text} onChange={(event) => setText(event.target.value)} aria-label="Policy text" />
-      <div className="input-footer"><span>{text.trim() ? `${text.trim().split(/\s+/).length.toLocaleString()} words` : 'No policy text yet'} <i /> Demo mode · no data leaves this browser</span><button className="button-primary" onClick={onScan} disabled={!text.trim() || isScanning}><ScanLine size={15} /> {isScanning ? 'Scanning policy…' : 'Run compliance scan'}</button></div>
+      {!compact && <div className="editor-heading"><div><span className="eyebrow">POLICY TEXT</span><small>Paste or edit policy content</small></div><div className="editor-actions"><button className="example-select" onClick={() => { window.clearTimeout(syncTimer.current); setDraftText(EXAMPLE_POLICIES[0].text); setText(EXAMPLE_POLICIES[0].text); }}><Sparkles size={13} /> Sample</button><button className="example-select reset-text" onClick={() => { window.clearTimeout(syncTimer.current); setDraftText(''); setText(''); setFileName(''); setFileNotice(''); }} title="Clear policy text"><RotateCcw size={13} /> Reset</button></div></div>}
+      <textarea className="policy-textarea" rows={compact ? 6 : 9} placeholder="Paste your AI policy text here…" value={draftText} onChange={(event) => updateText(event.target.value)} aria-label="Policy text" />
+      <div className="input-footer"><span>{draftText.trim() ? `${draftText.trim().split(/\s+/).length.toLocaleString()} words` : 'No policy text'} <i /> Stored in this browser</span><button className="button-primary" onClick={() => { window.clearTimeout(syncTimer.current); setText(draftText); onScan(draftText); }} disabled={!draftText.trim() || isScanning}><ScanLine size={15} /> {isScanning ? 'Scanning…' : 'Scan policy'}</button></div>
     </div>
   );
 }
