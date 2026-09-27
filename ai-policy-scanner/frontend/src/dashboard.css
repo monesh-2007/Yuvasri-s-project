@@ -706,3 +706,70 @@ body { background: var(--canvas); color: var(--text); }
   .app-footer { font-size: 9px; }
   .risk-legend span { font-size: 9px; }
 }
+
+body { font-size: 15px; }
+.workspace-meta strong, .profile-copy strong { font-size: 13px; }
+.workspace-meta small, .profile-copy small, .usage-card > small { font-size: 12px; }
+.nav-item span, .usage-heading, .help-link, .breadcrumb { font-size: 13px; }
+.nav-label, .eyebrow, .demo-chip { font-size: 11px; }
+.page-heading h1, .dashboard-heading h1 { font-size: 28px; }
+.page-heading p, .notice-bar p { font-size: 14px; }
+.button-primary, .button-secondary { min-height: 40px; padding-inline: 14px; font-size: 14px; }
+.search-box { height: 40px; }
+.search-box input { font-size: 14px; }
+.search-result strong { font-size: 14px; }
+.search-result small, .search-empty { font-size: 12px; }
+.metric-card { min-height: 166px; }
+.metric-head { font-size: 14px; }
+.metric-value { font-size: 32px; }
+.metric-delta { font-size: 11px; }
+.severity { font-size: 11px; }
+.metric-foot, .score-context > small { font-size: 12px; }
+.score-status { font-size: 13px; }
+.section-title h2 { font-size: 18px; }
+.section-title-row p { font-size: 13px; }
+.select-button { min-height: 36px; font-size: 12px; }
+.panel-header { min-height: 62px; }
+.panel-heading strong { font-size: 14px; }
+.panel-heading small, .doc-status, .engine-status, .document-meta { font-size: 12px; }
+.document-body p { font-size: 14px; line-height: 1.8; }
+.document-footer, .document-footer button { font-size: 12px; }
+.engine-summary strong { font-size: 14px; }
+.engine-summary p, .finding-title-line strong, .finding-detail { font-size: 13px; }
+.finding-heading, .finding-source, .finding-severity, .jump-link, .quote-line { font-size: 12px; }
+.finding-item { padding-block: 12px; }
+.risk-bar { height: 12px; }
+.risk-legend span, .risk-legend strong { font-size: 12px; }
+.bottom-card-header h3 { font-size: 14px; }
+.framework-copy strong, .activity-copy strong { font-size: 13px; }
+.framework-copy small, .framework-score small, .activity-copy small, .activity-score small, .activity-status, .text-button { font-size: 11px; }
+.dropzone > strong { font-size: 16px; }
+.dropzone > span, .uploaded-file strong, .editor-heading small, .example-select { font-size: 13px; }
+.uploaded-file small, .input-footer > span { font-size: 12px; }
+.policy-textarea { font-size: 14px; }
+.analytics-score p, .analytics-findings p, .analytics-bar-row > div:first-child { font-size: 13px; }
+.analytics-bar-row strong { font-size: 12px; }
+.analytics-footnote, .history-toolbar > div span, .history-row, .history-row small, .preference-row p, .app-footer { font-size: 11px; }
+
+@media (max-width: 600px) {
+  body { font-size: 13px; }
+  .nav-item span { font-size: 10px; }
+  .page-heading h1, .dashboard-heading h1 { font-size: 24px; }
+  .page-heading p, .notice-bar p { font-size: 12px; }
+  .button-primary, .button-secondary { min-height: 38px; padding-inline: 11px; font-size: 13px; }
+  .search-box { height: 37px; }
+  .search-box input { font-size: 13px; }
+  .metric-card { min-height: 148px; }
+  .metric-head { font-size: 12px; }
+  .metric-value { font-size: 27px; }
+  .metric-foot, .score-context > small { font-size: 10px; }
+  .section-title h2 { font-size: 16px; }
+  .panel-heading strong { font-size: 13px; }
+  .document-body p { font-size: 13px; }
+  .finding-title-line strong, .finding-detail { font-size: 12px; }
+  .risk-legend span, .risk-legend strong { font-size: 10px; }
+  .framework-copy strong, .activity-copy strong { font-size: 12px; }
+  .dropzone > strong { font-size: 14px; }
+  .policy-textarea { font-size: 13px; }
+  .history-row { font-size: 11px; }
+}
